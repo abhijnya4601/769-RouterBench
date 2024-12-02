@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Performance Comparison</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+    <!-- Recharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.0/Recharts.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div id="root" class="max-w-6xl mx-auto"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = Recharts;
+
+        function ModelComparison() {
+            const [selectedMetric, setSelectedMetric] = useState('price');
+
+            const models = [
+                'anthropic/claude-2',
+                'openai/gpt-3.5-turbo-1106',
+                'openai/gpt-4-1106-preview',
+                'mistralai/mistral-7b-instruct',
+                'mistralai/mixtral-8x7b-instruct'
+            ];
+
+            const tasks = Array.from({ length: 9 }, (_, i) => i);
+
+            const data = tasks.map(taskId => ({
+                taskId,
+                'anthropic/claude-2': {
+                    price: [0.0029520000000000000, 0.001464, 0.0045120000000000000, 0.00264, 0.00264, 0.002376, 0.00264, 0.002376, 0.002408][taskId],
+                    latency: [3.456319808959960, 3.303126096725460, 11.399116277694700, 6.658838510513310, 6.658838510513310, 5.789452075958250, 6.658838510513310, 5.789452075958250, 5.6896326541900600][taskId],
+                    judgeWinRate: [1.0, 1.0, 1.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.0][taskId],
+                    humanWinRate: [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0][taskId]
+                },
+                'openai/gpt-3.5-turbo-1106': {
+                    price: [0.000115, 0.000145, 0.000145, 0.00025700000000000000, 0.00025700000000000000, 0.000145, 0.00025700000000000000, 0.000145, 0.000166][taskId],
+                    latency: [0.9865081310272220, 0.7272350788116460, 0.7115006446838380, 2.486877679824830, 2.486877679824830, 0.7484323978424070, 2.486877679824830, 0.7484323978424070, 1.0272822380065900][taskId],
+                    judgeWinRate: [0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.3333333333333330][taskId],
+                    humanWinRate: [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0][taskId]
+                },
+                'openai/gpt-4-1106-preview': {
+                    price: [0.00561, 0.006690000000000000, 0.00342, 0.0031200000000000000, 0.0031200000000000000, 0.00306, 0.0031200000000000000, 0.00306, 0.0022][taskId],
+                    latency: [4.4220359325408900, 6.154143810272220, 3.0173747539520300, 3.5032119750976600, 3.5032119750976600, 3.0938334465026900, 3.5032119750976600, 3.0938334465026900, 2.0767269134521500][taskId],
+                    judgeWinRate: [0.8333333333333330, 1.0, 0.6666666666666670, 0.0, 0.0, 0.8333333333333330, 0.0, 0.8333333333333330, 0.5][taskId],
+                    humanWinRate: [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0][taskId]
+                },
+                'mistralai/mistral-7b-instruct': {
+                    price: [1.0945E-05, 1.045E-05, 1.584E-05, 3.113E-05, 3.113E-05, 1.32E-05, 3.113E-05, 1.32E-05, 6.38E-06][taskId],
+                    latency: [1.3961951732635500, 1.6586427688598600, 2.3950448036193800, 5.488659143447880, 5.488659143447880, 1.8435838222503700, 5.488659143447880, 1.8435838222503700, 1.0557630062103300][taskId],
+                    judgeWinRate: [1.0, 1.0, 1.0, 1.0, 1.0, 0.6666666666666670, 1.0, 0.6666666666666670, 0.0][taskId],
+                    humanWinRate: [1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0][taskId]
+                },
+                'mistralai/mixtral-8x7b-instruct': {
+                    price: [6.12E-05, 6.288E-05, 6.624E-05, 0.00014280000000000000, 0.00014280000000000000, 3.48E-05, 0.00014280000000000000, 3.48E-05, 3.072E-05][taskId],
+                    latency: [1.8168389797210700, 4.252945423126220, 1.6274199485778800, 3.3511524200439500, 3.3511524200439500, 1.7245733737945600, 3.3511524200439500, 1.7245733737945600, 0.8700578212738040][taskId],
+                    judgeWinRate: [0.8333333333333330, 1.0, 1.0, 1.0, 1.0, 0.3333333333333330, 1.0, 0.3333333333333330, 0.3333333333333330][taskId],
+                    humanWinRate: [0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0][taskId]
+                }
+            }));
+
+            const metricNames = {
+                price: 'Price per Request',
+                latency: 'Latency (seconds)',
+                judgeWinRate: 'Judge Win Rate',
+                humanWinRate: 'Human Win Rate'
+            };
+
+            const modelColors = {
+                'anthropic/claude-2': '#8884d8',
+                'openai/gpt-3.5-turbo-1106': '#82ca9d',
+                'openai/gpt-4-1106-preview': '#ffc658',
+                'mistralai/mistral-7b-instruct': '#ff7300',
+                'mistralai/mixtral-8x7b-instruct': '#e84393'
+            };
+
+            return (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h1 className="text-2xl font-bold mb-6">AI Model Performance Comparison</h1>
+
+                    <div className="space-y-4">
+                        <div className="flex flex-wrap gap-2">
+                            {Object.entries(metricNames).map(([key, label]) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setSelectedMetric(key)}
+                                    className={`px-4 py-2 rounded ${
+                                        selectedMetric === key
+                                            ? 'bg-blue-500 text-white'
+                                            : 'bg-gray-200 text-gray-700'
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <LineChart width={800} height={400} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="taskId"
+                                type="number"
+                                domain={[0, 8]}
+                                ticks={[0,1,2,3,4,5,6,7,8]}
+                            />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            {models.map(model => (
+                                <Line
+                                    key={model}
+                                    type="monotone"
+                                    data={data}
+                                    dataKey={d => d[model][selectedMetric]}
+                                    name={model.split('/')[1]}
+                                    stroke={modelColors[model]}
+                                    dot
+                                />
+                            ))}
+                        </LineChart>
+
+                        <div className="mt-4 text-sm">
+                            <h3 className="font-bold mb-2">Task Categories:</h3>
+                            <ul className="list-disc pl-5">
+                                <li>0: Video translation (Japanese to English)</li>
+                                <li>1: Data processing and aggregation</li>
+                                <li>2: Technical documentation translation</li>
+                                <li>3: Real-time chat translation</li>
+                                <li>4-5: Code analysis and review</li>
+                                <li>6: Math tutoring</li>
+                                <li>7-8: Marketing content generation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<ModelComparison />, document.getElementById('root'));
+    </script>
+
+    <!-- Babel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+</body>
+</html>
